@@ -50,3 +50,15 @@ y = all_data["gesture"]
 
 # Split into training and validation (test) datasets. Ratio: 70/30
 x_train, x_test, y_train, y_test = train_test_split(x,y,test_size = 0.3, random_state = seed)
+
+########################
+# BASIC MODEL
+########################
+
+clf_basic = RandomForestClassifier(n_estimators = 100, random_state = seed)
+clf_basic.fit(x_train, y_train)
+y_pred = clf_basic.predict(x_test)
+
+# Accuracy
+accuracy = metrics.accuracy_score(y_test, y_pred)
+print("Accuracy: ", accuracy)
