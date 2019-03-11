@@ -12,6 +12,8 @@ from sklearn.ensemble import RandomForestClassifier
 from scipy.stats import randint
 from sklearn.model_selection import RandomizedSearchCV
 from sklearn.model_selection import GridSearchCV
+import xgboost as xgb
+from sklearn.metrics import mean_squared_error
 from sklearn import metrics
 import time
 
@@ -53,9 +55,10 @@ y = all_data["gesture"]
 x_train, x_test, y_train, y_test = train_test_split(x,y,test_size = 0.3, random_state = seed)
 
 ########################
-# BASIC MODEL
+# 1. RANDOM FOREST 
 ########################
 
+#Basic model
 clf_basic = RandomForestClassifier(n_estimators = 100, random_state = seed)
 clf_basic.fit(x_train, y_train)
 y_pred = clf_basic.predict(x_test)
@@ -64,9 +67,7 @@ y_pred = clf_basic.predict(x_test)
 accuracy = metrics.accuracy_score(y_test, y_pred)
 print("Accuracy on the training set: ", accuracy)
 
-########################
 # PARAMETER TUNING
-########################
 
 # Approach 1: Try cross-validation
 # Setup the parameters and distributions to sample from: param_dist
@@ -114,3 +115,23 @@ print("Accuracy train: ", accuracy)
 
 accuracy = metrics.accuracy_score(y_test, y_pred)
 print("Accuracy on the test set: ", accuracy)       
+
+# Save optimal parameters and accuracy
+
+
+########################
+# 2. XGBOOST
+########################
+
+# Convert to Dmatrix
+data_dmatrix = xgb.DMatrix(data=X,label=y
+                           
+# Basic model
+xg_reg = xgb.XGBRegressor(objective ='reg:linear', colsample_bytree = 0.3, learning_rate = 0.1,
+                          max_depth = 5, alpha = 10, n_estimators = 10)
+                           
+xg_reg.fit(X_train,y_train)
+xgb_pred = xg_reg.predict(X_test)
+
+rmse = np.sqrt(mean_squared_error(y_test, preds))
+print("RMSE: %f" % (rmse))
