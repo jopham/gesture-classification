@@ -126,12 +126,12 @@ print("Accuracy on the test set: ", accuracy)
 # Convert to Dmatrix
 data_dmatrix = xgb.DMatrix(data=X,label=y
                            
-# Basic model
-xg_reg = xgb.XGBRegressor(objective ='reg:linear', colsample_bytree = 0.3, learning_rate = 0.1,
-                          max_depth = 5, alpha = 10, n_estimators = 10)
+# "Basic" model
+xg_reg = xgb.XGBClassifier(max_features='sqrt', subsample=0.8, random_state=seed)
                            
-xg_reg.fit(X_train,y_train)
-xgb_pred = xg_reg.predict(X_test)
-
-rmse = np.sqrt(mean_squared_error(y_test, preds))
-print("RMSE: %f" % (rmse))
+# Parameter tuning
+# Grid Search (you can try Random Search too)
+xgb_params = [{'n_estimators': [10, 100]},
+              {'learning_rate': [0.1, 0.01, 0.5]}]
+xgb_gsearch = GridSearchCV(estimator = gbm, param_grid = parameters, scoring='accuracy', cv = 3, n_jobs=-1)
+xgb_gsearch = grid_search.fit(x_train, y_train)
