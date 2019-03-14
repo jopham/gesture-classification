@@ -101,7 +101,7 @@ print("Accuracy on the test set: ", accuracy)
 ########################
 
 # Convert to Dmatrix
-data_dmatrix = xgb.DMatrix(data=X,label=y
+data_dmatrix = xgb.DMatrix(data=X,label=y)
                            
 # "Basic" model
 xg_reg = xgb.XGBClassifier(max_features='sqrt', subsample=0.8, random_state=seed)
@@ -111,4 +111,4 @@ xg_reg = xgb.XGBClassifier(max_features='sqrt', subsample=0.8, random_state=seed
 xgb_params = [{'n_estimators': [10, 100]},
               {'learning_rate': [0.1, 0.01, 0.5]}]
 xgb_gsearch = GridSearchCV(estimator = gbm, param_grid = parameters, scoring='accuracy', cv = 3, n_jobs=-1)
-#xgb_gsearch = grid_search.fit(x_train, y_train)
+xgb_model = xgb_gsearch.fit(x_train, y_train)
