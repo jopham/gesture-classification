@@ -70,14 +70,15 @@ print("Accuracy of the basic model: ", accuracy)
 # PARAMETER TUNING
 
 # Setup the parameters and distributions to sample from: param_dist
-param_dist = {"n_estimators": [500], # 500, 1000], #[100, 200],
-              "max_depth": [72], #np.arange(10, 75),
-              "max_features": [3], #randint(1, 12), # np.arange(1, 12), #randint(1, 12)
-              "min_samples_leaf": [0.001], #randint(0.01, 0.1), #[100], #[100, 200, 300, 400, 500],
-              "min_samples_split": [4],
+param_dist = {"n_estimators": [200, 300, 500]
+              "max_depth": np.arange(10, 75),
+              "max_features": randint(1, 12),
+              "min_samples_leaf": [0.001],
+              "min_samples_split": randint(4, 10),
               "n_jobs": [-1],
-              "criterion": ["gini"]} #"gini", "entropy"]}
-
+              "criterion": ["gini", "entropy"]}
+#500, 72, 3, 0.001, 4, "gini"
+			  
 print ('start fitting')             # Change this later to write to log
 clf = RandomForestClassifier(n_estimators = 500, min_samples_leaf=0.00075, max_features=3, 
                              criterion = "gini", 
