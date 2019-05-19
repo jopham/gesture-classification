@@ -54,6 +54,7 @@ y = all_data["gesture"]
 # Split into training and validation (test) datasets. Ratio: 70/30
 X_train, X_test, y_train, y_test = train_test_split(x,y,test_size = 0.3, random_state = seed)
 
+
 ########################
 # 1. RANDOM FOREST
 ########################
