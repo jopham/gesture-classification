@@ -7,15 +7,15 @@ RF - gesture classification model
 ########################
 import numpy as np
 import pandas as pd
+from scipy.stats import randint
+import sklearn
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn import metrics
-from scipy.stats import randint
 from sklearn.model_selection import RandomizedSearchCV
-from sklearn.model_selection import GridSearchCV
-import xgboost as xgb
-from sklearn.metrics import mean_squared_error
-import time
+from sklearn import metrics
+import catboost
+from catboost import CatBoostClassifier
+
 
 ########################
 # DATA PREPARATION
@@ -52,64 +52,89 @@ x = all_data[labellist[:-1]]
 y = all_data["gesture"]
 
 # Split into training and validation (test) datasets. Ratio: 70/30
-x_train, x_test, y_train, y_test = train_test_split(x,y,test_size = 0.3, random_state = seed)
+X_train, X_test, y_train, y_test = train_test_split(x,y,test_size = 0.3, random_state = seed)
 
 ########################
-# 1. RANDOM FOREST 
+# 1. RANDOM FOREST
 ########################
 
 #Basic model
 clf_basic = RandomForestClassifier(n_estimators = 100, random_state = seed)
-clf_basic.fit(x_train, y_train)
-y_pred = clf_basic.predict(x_test)
+clf_basic.fit(X_train, y_train)
+y_pred = clf_basic.predict(X_test)
 
 # Accuracy
 accuracy = metrics.accuracy_score(y_test, y_pred)
 print("Accuracy of the basic model: ", accuracy)
 
-# PARAMETER TUNING
-
+# Parameter tuning
 # Setup the parameters and distributions to sample from: param_dist
-param_dist = {"n_estimators": [200, 300, 500]
+param_dist = {"n_estimators": [200, 300, 500],
               "max_depth": np.arange(10, 75),
               "max_features": randint(1, 12),
               "min_samples_leaf": [0.001],
               "min_samples_split": randint(4, 10),
               "n_jobs": [-1],
               "criterion": ["gini", "entropy"]}
-#500, 72, 3, 0.001, 4, "gini"
-			  
-print ('start fitting')             # Change this later to write to log
-clf = RandomForestClassifier(n_estimators = 500, min_samples_leaf=0.00075, max_features=3, 
-                             criterion = "gini", 
-                             random_state = seed, n_jobs = -1) # max depth not needed,
 
-# Fit the RF model
-clf.fit(x_train,y_train)
-y_pred = clf.predict(x_test)
+# Randomized search
+# Instantiate a RF classifier: clf
+clf = RandomForestClassifier(random_state = seed)
 
-y_pred_train = clf.predict(x_train)
-accuracy = metrics.accuracy_score(y_train, y_pred_train)
-print("Accuracy train: ", accuracy)
+# Instantiate the RandomizedSearchCV object: clf_cv
+my_cv=5
+clf_cv = RandomizedSearchCV(clf, param_dist, cv=my_cv)
 
-accuracy = metrics.accuracy_score(y_test, y_pred)
-print("Accuracy on the test set: ", accuracy)       
+# Fit it to the data
+clf_cv.fit(X_train,y_train)
 
-# Save optimal parameters and accuracy
+# Predict values on the test set
+y_pred = clf_cv.predict(X_test)
+
+# Print the tuned parameters and score
+print("Tuned Random Forest Parameters: {}".format(clf_cv.best_params_))
+print("Best score is {}".format(clf_cv.best_score_))
+
 
 ########################
-# 2. XGBOOST
+# 2. GRADIENT BOOSTING
 ########################
 
-# Convert to Dmatrix
-data_dmatrix = xgb.DMatrix(data=X,label=y)
-                           
-# "Basic" model
-xg_reg = xgb.XGBClassifier(max_features='sqrt', subsample=0.8, random_state=seed)
-                           
-# Parameter tuning
-# Grid Search (you can try Random Search too)
-xgb_params = [{'n_estimators': [10, 100]},
-              {'learning_rate': [0.1, 0.01, 0.5]}]
-xgb_gsearch = GridSearchCV(estimator = gbm, param_grid = parameters, scoring='accuracy', cv = 3, n_jobs=-1)
-xgb_model = xgb_gsearch.fit(x_train, y_train)
+# Define a basic model using catboost
+model = CatBoostClassifier(iterations=50,
+                           learning_rate=0.1)
+
+model.fit(X_train, y_train,
+          cat_features=cat_features,
+          eval_set=(X_test, y_test),
+          verbose=False)
+
+print('Model is fitted: ' + str(model.is_fitted()))
+print('Model params:')
+print(model.get_params())
+
+# Tune your model, get accuracy
+model = CatBoostClassifier(iterations=100,
+                           random_seed=seed,
+                           learning_rate=0.5,
+                           custom_loss=['AUC', 'Accuracy'])
+
+model.fit(X_train, y_train,
+          cat_features=cat_features,
+          eval_set=(X_test, y_test),
+          verbose=False)
+
+# Get the best model: use_best_model = True (default)
+model = CatBoostClassifier(
+    iterations=100,
+    random_seed=seed,
+    learning_rate=0.5)
+
+model.fit(X_train, y_train,
+          cat_features=cat_features,
+          eval_set=(X_test, y_test),
+          verbose=False)
+
+# Print model predictions
+print(model.predict_proba(data=X_test))
+print(model.predict(data=X_test))
