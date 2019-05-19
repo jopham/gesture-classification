@@ -1,6 +1,5 @@
 """
-RF - gesture classification model
-"""
+Purpose: Try a few ML models to classify hand gestures"""
 
 ########################
 # IMPORT
