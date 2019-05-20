@@ -67,7 +67,7 @@ y_pred = clf_basic.predict(X_test)
 accuracy = metrics.accuracy_score(y_test, y_pred)
 print("Accuracy of the basic model: ", accuracy)
 
-# Parameter tuning
+# Parameter tuning - Randomized search
 # Setup the parameters and distributions to sample from: param_dist
 param_dist = {"n_estimators": [200, 300, 500],
               "max_depth": np.arange(10, 75),
@@ -77,7 +77,6 @@ param_dist = {"n_estimators": [200, 300, 500],
               "n_jobs": [-1],
               "criterion": ["gini", "entropy"]}
 
-# Randomized search
 # Instantiate a RF classifier: clf
 clf = RandomForestClassifier(random_state = seed)
 
@@ -108,7 +107,7 @@ model = CatBoostClassifier(iterations=50,
 
 model.fit(X_train, y_train,
           eval_set=(X_test, y_test),
-          verbose=False)
+          verbose=20)
 
 print('Model is fitted: ' + str(model.is_fitted()))
 print('Model params:')
@@ -122,7 +121,7 @@ model = CatBoostClassifier(iterations=100,
 
 model.fit(X_train, y_train,
           eval_set=(X_test, y_test),
-          verbose=False)
+          verbose=20)
 
 # Print model predictions
 print(model.predict_proba(data=X_test))
