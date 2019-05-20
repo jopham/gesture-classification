@@ -6,6 +6,7 @@ Purpose: Try a few ML models to classify hand gestures
 # IMPORT
 ########################
 import numpy as np
+from numpy import exp
 import pandas as pd
 from scipy.stats import randint
 import sklearn
@@ -113,16 +114,12 @@ print('Model is fitted: ' + str(model.is_fitted()))
 print('Model params:')
 print(model.get_params())
 
-# Tune your model, get accuracy
-model = CatBoostClassifier(iterations=100,
+# Tune your model
+model = CatBoostClassifier(iterations=150,
                            random_seed=seed,
-                           learning_rate=0.5,
+                           learning_rate=0.1,
                            loss_function='MultiClass')
 
 model.fit(X_train, y_train,
           eval_set=(X_test, y_test),
           verbose=20)
-
-# Print model predictions
-print(model.predict_proba(data=X_test))
-print(model.predict(data=X_test))
