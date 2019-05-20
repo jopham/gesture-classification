@@ -1,5 +1,5 @@
 """
-RF - gesture classification model
+Purpose: Try a few ML models to classify hand gestures
 """
 
 ########################
@@ -78,24 +78,22 @@ param_dist = {"n_estimators": [200, 300, 500],
               "criterion": ["gini", "entropy"]}
 
 # Randomized search
+# Instantiate a RF classifier: clf
+clf = RandomForestClassifier(random_state = seed)
 
-#500, 72, 3, 0.001, 4, "gini"
+# Instantiate the RandomizedSearchCV object: clf_cv
+my_cv=5
+clf_cv = RandomizedSearchCV(clf, param_dist, cv=my_cv)
 
-# *Note: max depth not needed
-clf = RandomForestClassifier(n_estimators = 500, min_samples_leaf=0.00075, max_features=3,
-                             criterion = "gini",
-                             random_state = seed, n_jobs = -1)
+# Fit it to the data
+clf_cv.fit(X_train, y_train)
 
-# Fit the RF model
-clf.fit(X_train,y_train)
-y_pred = clf.predict(X_test)
+# Predict values on the test set
+y_pred = clf_cv.predict(X_test)
 
-y_pred_train = clf.predict(X_train)
-accuracy = metrics.accuracy_score(y_train, y_pred_train)
-print("Accuracy on the training: ", accuracy)
-
-accuracy = metrics.accuracy_score(y_test, y_pred)
-print("Accuracy on the test set: ", accuracy)
+# Print the tuned parameters and score
+print("Tuned Random Forest Parameters: {}".format(clf_cv.best_params_))
+print("Best score is {}".format(clf_cv.best_score_))
 
 
 ########################
