@@ -26,33 +26,32 @@ all_data = pd.read_csv('og_gesture.csv', header=None)
 
 # Choose a seed
 seed = 12345
-np.random.seed(seed)
 
 # Create variable names (lables) and target name
 count = 1
 labellist = []
 
 while count <= 128:
-    string = "electrode_"
-    string += str(count)
-    labellist.append(string)
+    label_str = "electrode_"
+    label_str += str(count)
+    labellist.append(label_str)
     count += 1
 
 labellist.append("gesture")
-del(count, string)
+del(count, label_str)
 
 # Change column names
 all_data.columns = labellist
 
-# Add an ID column
-all_data.insert(0, 'id', range(1, 1 + len(all_data)))
-
 # Identify inputs and the target variable
-x = all_data[labellist[:-1]]
+X = all_data[labellist[:-1]]
 y = all_data["gesture"]
 
+# Check headers
+#print(x.columns.values)
+
 # Split into training and validation (test) datasets. Ratio: 70/30
-X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=seed)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=seed)
 
 ########################
 # 1. RANDOM FOREST
