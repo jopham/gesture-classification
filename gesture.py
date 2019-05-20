@@ -22,7 +22,7 @@ from catboost import CatBoostClassifier
 ########################
 
 # Read in the original dataset
-all_data = pd.read_csv('og_gesture.csv', header = None)
+all_data = pd.read_csv('og_gesture.csv', header=None)
 
 # Choose a seed
 seed = 12345
@@ -52,14 +52,14 @@ x = all_data[labellist[:-1]]
 y = all_data["gesture"]
 
 # Split into training and validation (test) datasets. Ratio: 70/30
-X_train, X_test, y_train, y_test = train_test_split(x,y,test_size = 0.3, random_state = seed)
+X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=seed)
 
 ########################
 # 1. RANDOM FOREST
 ########################
 
 #Basic model
-clf_basic = RandomForestClassifier(n_estimators = 100, random_state = seed)
+clf_basic = RandomForestClassifier(n_estimators=100, random_state=seed)
 clf_basic.fit(X_train, y_train)
 y_pred = clf_basic.predict(X_test)
 
@@ -78,10 +78,10 @@ param_dist = {"n_estimators": [200, 300, 500],
               "criterion": ["gini", "entropy"]}
 
 # Instantiate a RF classifier: clf
-clf = RandomForestClassifier(random_state = seed)
+clf = RandomForestClassifier(random_state=seed)
 
 # Instantiate the RandomizedSearchCV object: clf_cv
-my_cv=5
+my_cv = 5
 clf_cv = RandomizedSearchCV(clf, param_dist, cv=my_cv)
 
 # Fit it to the data
