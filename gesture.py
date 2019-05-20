@@ -1,5 +1,6 @@
 """
-Purpose: Try a few ML models to classify hand gestures"""
+RF - gesture classification model
+"""
 
 ########################
 # IMPORT
@@ -53,7 +54,6 @@ y = all_data["gesture"]
 # Split into training and validation (test) datasets. Ratio: 70/30
 X_train, X_test, y_train, y_test = train_test_split(x,y,test_size = 0.3, random_state = seed)
 
-
 ########################
 # 1. RANDOM FOREST
 ########################
@@ -78,22 +78,24 @@ param_dist = {"n_estimators": [200, 300, 500],
               "criterion": ["gini", "entropy"]}
 
 # Randomized search
-# Instantiate a RF classifier: clf
-clf = RandomForestClassifier(random_state = seed)
 
-# Instantiate the RandomizedSearchCV object: clf_cv
-my_cv=5
-clf_cv = RandomizedSearchCV(clf, param_dist, cv=my_cv)
+#500, 72, 3, 0.001, 4, "gini"
 
-# Fit it to the data
-clf_cv.fit(X_train,y_train)
+# *Note: max depth not needed
+clf = RandomForestClassifier(n_estimators = 500, min_samples_leaf=0.00075, max_features=3,
+                             criterion = "gini",
+                             random_state = seed, n_jobs = -1)
 
-# Predict values on the test set
-y_pred = clf_cv.predict(X_test)
+# Fit the RF model
+clf.fit(X_train,y_train)
+y_pred = clf.predict(X_test)
 
-# Print the tuned parameters and score
-print("Tuned Random Forest Parameters: {}".format(clf_cv.best_params_))
-print("Best score is {}".format(clf_cv.best_score_))
+y_pred_train = clf.predict(X_train)
+accuracy = metrics.accuracy_score(y_train, y_pred_train)
+print("Accuracy on the training: ", accuracy)
+
+accuracy = metrics.accuracy_score(y_test, y_pred)
+print("Accuracy on the test set: ", accuracy)
 
 
 ########################
@@ -102,10 +104,11 @@ print("Best score is {}".format(clf_cv.best_score_))
 
 # Define a basic model using catboost
 model = CatBoostClassifier(iterations=50,
-                           learning_rate=0.1)
+                           random_seed=seed,
+                           learning_rate=0.1,
+                           loss_function='MultiClass')
 
 model.fit(X_train, y_train,
-          cat_features=cat_features,
           eval_set=(X_test, y_test),
           verbose=False)
 
@@ -117,21 +120,9 @@ print(model.get_params())
 model = CatBoostClassifier(iterations=100,
                            random_seed=seed,
                            learning_rate=0.5,
-                           custom_loss=['AUC', 'Accuracy'])
+                           loss_function='MultiClass')
 
 model.fit(X_train, y_train,
-          cat_features=cat_features,
-          eval_set=(X_test, y_test),
-          verbose=False)
-
-# Get the best model: use_best_model = True (default)
-model = CatBoostClassifier(
-    iterations=100,
-    random_seed=seed,
-    learning_rate=0.5)
-
-model.fit(X_train, y_train,
-          cat_features=cat_features,
           eval_set=(X_test, y_test),
           verbose=False)
 
