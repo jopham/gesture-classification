@@ -6,7 +6,6 @@ Purpose: Try a few ML models to classify hand gestures
 # IMPORT
 ########################
 import numpy as np
-from numpy import exp
 import pandas as pd
 from scipy.stats import randint
 import sklearn
