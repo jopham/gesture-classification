@@ -115,7 +115,7 @@ print(model.get_params())
 # Tune your model
 model = CatBoostClassifier(iterations=150,
                            random_seed=seed,
-                           learning_rate=0.1,
+                           learning_rate=0.05,
                            loss_function='MultiClass')
 
 model.fit(X_train, y_train,
